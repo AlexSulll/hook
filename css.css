@@ -1,6 +1,72 @@
 * {
     box-sizing: border-box;
 }
+
+@media (min-width: 430px) and (min-height: 932px) {
+    nav {
+        min-width: 100%;
+    }
+    #nav a {
+        display: block;
+        color: black;
+        padding: 5px 11px;
+        text-decoration: none;
+        border-right: 1px solid #ccc;
+    }
+    #header h1 {
+        padding: 10px 10px 10px 10px;
+    }
+    #sidebar1 {
+        float: left;
+        width: 20%;
+        padding: 1px 0 0 2px;
+    }
+    .aside h2 {
+        font-size: 0.7em;
+        margin-top: 2px;
+    }
+    #article h2 {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+    #article p {
+        line-height: 90%;
+        margin-bottom: 10px;
+    }
+    #article {
+        background-color: #fafafa;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        margin-left: 20%;
+        margin-right: 20%;
+        padding: 10px;
+        width: 60%;
+    }
+    #sidebar2 {
+        float: right;
+        width: 20%;
+        padding: 0 2px 0 2px;
+    }
+    .aside p, .aside li {
+        font-size: .75em;
+        margin-top: 6px;
+    }
+    #article {
+        background-color: #fafafa;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        margin-left: 20%;
+        margin-right: 20%;
+        padding: 10px;
+        width: 60%;
+        font-size: 0.9em;
+    }
+    .aside h3 {
+        font-size: 0.7em;
+        margin-top: 2px;
+    }
+
+}
 html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, ul, li{
 
     margin: 0;
@@ -144,6 +210,7 @@ body {
 }
 #nav a:hover {
     font-weight: bold;
+
 }
 #nav:after {
     content: " ";
@@ -212,4 +279,36 @@ body {
 }
 .wrapper, #nav, #header, #footer{
     min-width: 768px;
+}
+[data-hint] {
+    position: relative;
+    cursor: hint;
+}
+
+[data-hint]::after {
+    opacity: 0;
+    width: max-content;
+    color: #FFFFFF;
+    background-color: rgba(0,0,0,.7);
+    border-radius: 6px;
+    padding: 10px;
+    content: attr(data-hint);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1em;
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+[data-hint]:hover::after {
+    opacity: 1;
+}
+.hint-bottom::after {
+    top: auto;
+    bottom: -5px;
+    transform: translate(-50%, 100%);
 }
