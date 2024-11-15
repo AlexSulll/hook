@@ -1,0 +1,141 @@
+/* Общие настройки */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, Arial, sans-serif;
+    background-color: #f7f7f7;
+}
+
+#header {
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 20px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#header h1 {
+    font-size: 24px;
+    text-transform: uppercase;
+    font-weight: bold;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#nav {
+    background-color: #eee;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+#nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+#nav li {
+    margin: 0;
+}
+
+#nav a {
+    display: block;
+    color: black;
+    padding: 10px 25px;
+    text-decoration: none;
+    border-right: 1px solid #ccc;
+}
+
+#nav li:last-child a {
+    border-right: none;
+}
+
+#nav a:hover {
+    font-weight: bold;
+}
+
+.wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #fafafa;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+#form-section h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+#analysis-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#analysis-form label {
+    font-size: 14px;
+    font-weight: bold;
+    display: block;
+}
+
+#analysis-form input,
+#analysis-form textarea,
+#analysis-form button {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+#analysis-form textarea {
+    resize: vertical;
+}
+
+#analysis-form button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#analysis-form button:hover {
+    background-color: #0056b3;
+}
+
+#links {
+    margin-top: 30px;
+}
+
+#links h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+#links a {
+    display: block;
+    color: #007BFF;
+    text-decoration: none;
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+#links a:hover {
+    text-decoration: underline;
+}
+
+#footer {
+    border-top: 1px solid #ccc;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #f4f4f4;
+    font-size: 0.8em;
+}

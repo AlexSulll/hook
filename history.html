@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>История перемещений</title>
+  <link rel="stylesheet" href="history.css">
+</head>
+<body>
+<div id="header">
+  <h1>История перемещений</h1>
+</div>
+<nav id="nav">
+  <ul>
+    <li><a href="index.html">Главная страница</a></li>
+    <li><a href="movement.html">Управление движением</a></li>
+    <li><a href="history.html">История перемещений</a></li>
+  </ul>
+</nav>
+<div class="wrapper">
+  <div id="filters">
+    <h2>Фильтры</h2>
+    <form>
+      <label for="start-date">Дата начала:</label>
+      <input type="date" id="start-date" name="start-date">
+
+      <label for="end-date">Дата окончания:</label>
+      <input type="date" id="end-date" name="end-date">
+
+      <label for="movement-type">Тип движения:</label>
+      <select id="movement-type" name="movement-type">
+        <option value="">Все</option>
+        <option value="приход">Приход</option>
+        <option value="расход">Расход</option>
+        <option value="списание">Списание</option>
+      </select>
+
+      <button type="submit">Применить</button>
+    </form>
+  </div>
+  <div id="history">
+    <h2>Данные истории</h2>
+    <table>
+      <thead>
+      <tr>
+        <th>Дата</th>
+        <th>Продукция</th>
+        <th>Склад</th>
+        <th>Зона</th>
+        <th>Тип движения</th>
+        <th>Объем, л</th>
+        <th>Причина</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>2024-11-15</td>
+        <td>Керосин</td>
+        <td>Склад 1</td>
+        <td>Зона А</td>
+        <td>Приход</td>
+        <td>100</td>
+        <td>Новый заказ</td>
+      </tr>
+      <tr>
+        <td>2024-11-14</td>
+        <td>Бензин</td>
+        <td>Склад 2</td>
+        <td>Зона B</td>
+        <td>Расход</td>
+        <td>50</td>
+        <td>Отправка клиенту</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="footer">
+  <p>Contacts: hlebusheck.tv@gmail.com</p>
+  <p>Copyright © KaruNet.com, 2024</p>
+</div>
+</body>
+</html>

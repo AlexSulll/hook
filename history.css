@@ -1,0 +1,146 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, Arial, sans-serif;
+    background-color: #f7f7f7;
+}
+
+#header {
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 20px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#header h1 {
+    font-size: 24px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+#nav {
+    background-color: #eee;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+#nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+#nav li {
+    margin: 0;
+}
+
+#nav a {
+    display: block;
+    color: black;
+    padding: 10px 25px;
+    text-decoration: none;
+    border-right: 1px solid #ccc;
+}
+
+#nav li:last-child a {
+    border-right: none;
+}
+
+#nav a:hover {
+    font-weight: bold;
+}
+
+/* Основной контент */
+.wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #fafafa;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+#filters h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+#filters form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+#filters label {
+    font-size: 14px;
+    font-weight: bold;
+    display: block;
+}
+
+#filters input,
+#filters select,
+#filters button {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+#filters button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#filters button:hover {
+    background-color: #0056b3;
+}
+
+#history h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+#history table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+#history table thead {
+    background-color: #007BFF;
+    color: white;
+}
+
+#history table th,
+#history table td {
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+#history table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+#history table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Футер */
+#footer {
+    border-top: 1px solid #ccc;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #f4f4f4;
+    font-size: 0.8em;
+}

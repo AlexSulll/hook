@@ -1,0 +1,145 @@
+/* Общие настройки */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, Arial, sans-serif;
+    background-color: #f7f7f7;
+}
+
+#header {
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 20px 0;
+}
+
+#header h1 {
+    font-size: 24px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+#nav {
+    background-color: #eee;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+#nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+#nav li {
+    margin: 0;
+}
+
+#nav a {
+    display: block;
+    color: black;
+    padding: 10px 25px;
+    text-decoration: none;
+    border-right: 1px solid #ccc;
+}
+
+#nav li:last-child a {
+    border-right: none;
+}
+
+#nav a:hover {
+    font-weight: bold;
+}
+
+#nav a.active {
+    font-weight: bold;
+    color: white;
+    background-color: #007BFF;
+}
+
+/* Основной контент */
+.wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #fafafa;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+#manual-content {
+    margin-bottom: 20px;
+}
+
+#manual-content h2 {
+    font-size: 20px;
+    margin-top: 20px;
+}
+
+#manual-content p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+#manual-content ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 20px;
+}
+
+#manual-content ul li {
+    margin-bottom: 10px;
+}
+
+#manual-content ul li a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+#manual-content ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Блок полезных ссылок */
+#additional-links {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 15px;
+}
+
+#additional-links h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+#additional-links ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#additional-links ul li {
+    margin-bottom: 10px;
+}
+
+#additional-links ul li a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+#additional-links ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Футер */
+#footer {
+    border-top: 1px solid #ccc;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #f4f4f4;
+    font-size: 0.8em;
+}

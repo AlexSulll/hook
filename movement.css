@@ -1,0 +1,342 @@
+/* Общие настройки */
+* {
+    box-sizing: border-box;
+}
+
+html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, ul, li {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+}
+
+body {
+    font-family: Verdana, Arial, sans-serif;
+    background-color: #f7f7f7;
+}
+
+/* Хедер */
+#header {
+    background-color: #f4f4f4;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#header h1 {
+    font-size: 24px;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 30px 30px 30px 10px;
+    clear: both;
+}
+
+/* Навигация */
+#nav {
+    background-color: #eee;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+#nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+#nav li {
+    float: left;
+}
+
+#nav a {
+    display: block;
+    color: black;
+    padding: 10px 25px;
+    text-decoration: none;
+    border-right: 1px solid #ccc;
+}
+
+#nav li:last-child a {
+    border-right: none;
+}
+
+#nav a:hover {
+    font-weight: bold;
+}
+
+#nav:after {
+    content: " ";
+    display: table;
+    clear: both;
+}
+
+/* Основной контент */
+.wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #fafafa;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.wrapper, #nav, #header, #footer {
+    min-width: 768px;
+}
+
+/* Сайдбары */
+#sidebar1 {
+    float: left;
+    width: 20%;
+    padding: 1px 0 0 2px;
+}
+
+#sidebar2 {
+    float: right;
+    width: 20%;
+    padding: 0 2px 0 2px;
+}
+
+.aside h2 {
+    font-size: 0.95em;
+    margin-top: 15px;
+}
+
+.aside h3 {
+    font-size: 0.85em;
+    margin-top: 10px;
+}
+
+.aside p, .aside li {
+    font-size: .75em;
+    margin-top: 10px;
+    list-style-type: none;
+}
+
+/* Статья */
+#article {
+    background-color: #fafafa;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    margin-left: 20%;
+    margin-right: 20%;
+    padding: 15px;
+    width: 60%;
+    font-size: 0.9em;
+    line-height: 150%;
+}
+
+#article h2 {
+    font-size: 1.3em;
+    margin-bottom: 15px;
+}
+
+#article p {
+    margin-bottom: 15px;
+}
+
+#article:after {
+    clear: both;
+    display: table;
+    content: '';
+}
+
+/* Футер */
+#footer {
+    border-top: 1px solid #ccc;
+    font-size: .8em;
+    text-align: center;
+    padding: 10px 10px 30px 10px;
+}
+
+/* Фильтры */
+#filters {
+    margin-bottom: 20px;
+}
+
+#filters h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+#filters form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+#filters label {
+    font-size: 14px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+#filters select,
+#filters button {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+#filters button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+#filters button:hover {
+    background-color: #0056b3;
+}
+
+/* Управление движением */
+#movement-form {
+    margin-bottom: 20px;
+}
+
+#movement-form h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+#movement-action-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#movement-action-form label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#movement-action-form select,
+#movement-action-form input,
+#movement-action-form textarea,
+#movement-action-form button {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    width: 100%;
+    max-width: 400px;
+}
+
+#movement-action-form textarea {
+    resize: vertical;
+}
+
+#movement-action-form button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    width: auto;
+    padding: 10px 20px;
+}
+
+#movement-action-form button:hover {
+    background-color: #0056b3;
+}
+
+/* История */
+#history-link {
+    text-align: center;
+    margin-top: 30px;
+}
+
+#history-link h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+#history-link a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#history-link a:hover {
+    text-decoration: underline;
+}
+
+/* Хинты */
+[data-hint] {
+    position: relative;
+    cursor: pointer;
+}
+
+[data-hint]::after {
+    opacity: 0;
+    width: max-content;
+    color: #FFFFFF;
+    background-color: rgba(0, 0, 0, .7);
+    border-radius: 6px;
+    padding: 10px;
+    content: attr(data-hint);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1em;
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+[data-hint]:hover::after {
+    opacity: 1;
+}
+
+.hint-bottom::after {
+    top: auto;
+    bottom: -5px;
+    transform: translate(-50%, 100%);
+}
+
+/* Адаптивность */
+@media (min-width: 430px) and (min-height: 932px) {
+    nav {
+        min-width: 100%;
+    }
+
+    #nav a {
+        padding: 5px 11px;
+    }
+
+    #header h1 {
+        padding: 10px;
+    }
+
+    #article {
+        padding: 10px;
+    }
+
+    .aside h2 {
+        font-size: 0.7em;
+    }
+
+    .aside h3 {
+        font-size: 0.7em;
+    }
+
+    .aside p, .aside li {
+        font-size: .75em;
+    }
+
+    #article h2 {
+        font-size: 0.9em;
+    }
+
+    #article p {
+        line-height: 90%;
+        margin-bottom: 10px;
+    }
+}

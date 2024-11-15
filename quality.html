@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контроль качества</title>
+    <link rel="stylesheet" href="quality.css">
+</head>
+<body>
+<div id="header">
+    <h1>Контроль качества</h1>
+</div>
+<nav id="nav">
+    <ul>
+        <li><a href="index.html">Главная страница</a></li>
+        <li><a href="historyanalizov.html">История анализов</a></li>
+        <li><a href="notifications.html">Настройка уведомлений</a></li>
+    </ul>
+</nav>
+<div class="wrapper">
+    <div id="form-section">
+        <h2>Форма для ввода данных</h2>
+        <form id="analysis-form">
+            <label for="date">Дата анализа:</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="flash-point">Наименование продукта:</label>
+            <input type="text" required>
+
+            <label for="flash-point">Температура вспышки:</label>
+            <input type="number" id="flash-point" name="flash-point" step="0.1" required>
+
+            <label for="viscosity">Вязкость:</label>
+            <input type="number" id="viscosity" name="viscosity" step="0.01" required>
+
+            <label for="density">Плотность:</label>
+            <input type="number" id="density" name="density" step="0.001" required>
+
+            <label for="other-parameters">Прочие параметры:</label>
+            <textarea id="other-parameters" name="other-parameters" rows="4"></textarea>
+
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+    <div id="links">
+        <h2>Дополнительный функционал</h2>
+        <a href="historyanalizov.html">Перейти к истории анализов</a>
+        <a href="notifications.html">Настроить уведомления</a>
+    </div>
+</div>
+<div id="footer">
+    <p>Contacts: hlebusheck.tv@gmail.com</p>
+    <p>Copyright © KaruNet.com, 2024</p>
+</div>
+</body>
+</html>
