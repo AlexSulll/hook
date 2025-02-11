@@ -1,0 +1,21 @@
+CREATE TABLE Payment_rent AS SELECT * FROM sh.test_operation WHERE rownum<100;
+DROP TABLE Payment_rent;
+SELECt * from Payment_rent;
+CREATE TABLE loggin_proc
+(
+    ID NUMBER PRIMARY KEY,
+    DATE_PROC_START DATE NOT NULL,
+    DATE_FROM DATE NOT NULL,
+    DATE_TO DATE NOT NULL,
+    COUNT_INSERT NUMBER NOT NULL,
+    DATE_PROC_END DATE NOT NULL,
+    FLAG NUMBER NOT NULL
+);
+
+
+CREATE OR REPLACE PROCEDURE payment_rent_pr(DateFrom IN DATE, DateTo IN DATE)
+IS 
+    c_insert NUMBER := 0;
+BEGIN
+    
+END;
