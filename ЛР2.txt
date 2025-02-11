@@ -1,6 +1,5 @@
-CREATE TABLE Payment_rent AS SELECT * FROM sh.test_operation WHERE rownum<100;
+CREATE TABLE Payment_rent AS SELECT * FROM sh.test_operation WHERE rownum<1000;
 DROP TABLE Payment_rent;
-SELECt * from Payment_rent;
 CREATE TABLE loggin_proc
 (
     ID NUMBER PRIMARY KEY,
@@ -11,11 +10,41 @@ CREATE TABLE loggin_proc
     DATE_PROC_END DATE NOT NULL,
     FLAG NUMBER NOT NULL
 );
-
-
+CREATE SEQUENCE loggin_proc_seq
+START WITH 1
+INCREMENT BY 1
+NOMAXVALUE;
 CREATE OR REPLACE PROCEDURE payment_rent_pr(DateFrom IN DATE, DateTo IN DATE)
 IS 
     c_insert NUMBER := 0;
+    v_start_proc DATE;
 BEGIN
-    
+    SELECT SYSDATE INTO v_start_proc FROM DUAL;
+    DELETE Payment_rent;
+    COMMIT;
+    FOR oper_rec IN (SELECT * FROM sh.test_operation WHERE DATA_OP>=DateFrom AND DATA_OP<=DateTo AND REGEXP_LIKE(UPPER(DESCR), 'АРЕНД')) LOOP
+        c_insert := c_insert+1;
+        INSERT INTO Payment_rent VALUES (oper_rec.KOD,oper_rec.DOG,oper_rec.DATA_DOG,oper_rec.SUMMA_DOG,oper_rec.BIC_PL,oper_rec.KORCH_PL,oper_rec.RASCH_PL,oper_rec.INN_PL,oper_rec.BIC_POL,oper_rec.KORSCH_POL,oper_rec.RASCH_POL,oper_rec.INN_POL,oper_rec.DESCR,oper_rec.DATA_OP,oper_rec.SUMMA_OP,oper_rec.RULE,oper_rec.PRIZ);
+        COMMIT;
+    END LOOP;
+    INSERT INTO loggin_proc(ID,DATE_PROC_START,DATE_FROM,DATE_TO,COUNT_INSERT,DATE_PROC_END,FLAG)
+    VALUES (loggin_proc_seq.nextval,v_start_proc,DateFrom,DateTo,c_insert,SYSDATE,1);
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        BEGIN
+            INSERT INTO loggin_proc(ID,DATE_PROC_START,DATE_FROM,DATE_TO,COUNT_INSERT,DATE_PROC_END,FLAG)
+            VALUES (loggin_proc_seq.nextval,v_start_proc,DateFrom,DateTo,c_insert,SYSDATE,0);
+            COMMIT;
+        END;
 END;
+
+SELECT * FROM sh.test_operation WHERE REGEXP_LIKE(UPPER(DESCR), 'АРЕНД');
+SELECT CURRENT_DATE FROM DUAL;
+
+Begin
+ payment_rent_pr(TO_DATE('01.01.2001'),TO_DATE('01.01.2001'));
+end;
+
+SELECT * FROM loggin_proc;
+SELECT * from Payment_rent;
