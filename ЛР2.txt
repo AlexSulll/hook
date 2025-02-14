@@ -1,5 +1,4 @@
-CREATE TABLE Payment_rent AS SELECT * FROM sh.test_operation WHERE rownum<1000;
-DROP TABLE Payment_rent;
+CREATE TABLE Payment_rent AS SELECT * FROM sh.test_operation WHERE rownum<1;
 CREATE TABLE loggin_proc
 (
     ID NUMBER PRIMARY KEY,
@@ -10,6 +9,7 @@ CREATE TABLE loggin_proc
     DATE_PROC_END DATE NOT NULL,
     FLAG NUMBER NOT NULL
 );
+
 CREATE SEQUENCE loggin_proc_seq
 START WITH 1
 INCREMENT BY 1
@@ -39,12 +39,16 @@ EXCEPTION
         END;
 END;
 
+BEGIN
+ payment_rent_pr(TO_DATE('01.01.2001'),TO_DATE('01.01.2001'));
+END;
+
+SELECT * FROM loggin_proc;
+SELECT * FROM Payment_rent;
+
 SELECT * FROM sh.test_operation WHERE REGEXP_LIKE(UPPER(DESCR), 'АРЕНД');
 SELECT CURRENT_DATE FROM DUAL;
 
-Begin
- payment_rent_pr(TO_DATE('01.01.2001'),TO_DATE('01.01.2001'));
-end;
-
-SELECT * FROM loggin_proc;
-SELECT * from Payment_rent;
+DROP TABLE Payment_rent;
+DROP PROCEDURE payment_rent_pr;
+DROP TABLE loggin_proc;
