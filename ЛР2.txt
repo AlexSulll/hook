@@ -14,6 +14,7 @@ CREATE SEQUENCE loggin_proc_seq
 START WITH 1
 INCREMENT BY 1
 NOMAXVALUE;
+
 CREATE OR REPLACE PROCEDURE payment_rent_pr(DateFrom IN DATE, DateTo IN DATE)
 IS 
     c_insert NUMBER := 0;
@@ -22,9 +23,13 @@ BEGIN
     SELECT SYSDATE INTO v_start_proc FROM DUAL;
     DELETE Payment_rent;
     COMMIT;
-    FOR oper_rec IN (SELECT * FROM sh.test_operation WHERE DATA_OP>=DateFrom AND DATA_OP<=DateTo AND REGEXP_LIKE(UPPER(DESCR), 'АРЕНД')) LOOP
+    FOR oper_rec IN (SELECT top.KOD, top.DOG, top.DATA_DOG, top.SUMMA_DOG, top.BIC_PL, top.KORCH_PL, top.RASCH_PL, top.INN_PL, top.BIC_POL, top.KORSCH_POL, top.RASCH_POL, top.INN_POL, top.DESCR, top.DATA_OP, top.SUMMA_OP, top.RULE, top.PRIZ 
+                        FROM sh.test_operation top 
+                        JOIN sh.test_uchast tuc ON top.INN_POL = tuc.INN 
+                        WHERE DATA_OP>=DateFrom AND DATA_OP<=DateTo AND REGEXP_LIKE(UPPER(DESCR), 'АРЕНД') AND REGEXP_LIKE(UPPER(NAIMEN), 'БАНК')
+                    ) LOOP
         c_insert := c_insert+1;
-        INSERT INTO Payment_rent VALUES (oper_rec.KOD,oper_rec.DOG,oper_rec.DATA_DOG,oper_rec.SUMMA_DOG,oper_rec.BIC_PL,oper_rec.KORCH_PL,oper_rec.RASCH_PL,oper_rec.INN_PL,oper_rec.BIC_POL,oper_rec.KORSCH_POL,oper_rec.RASCH_POL,oper_rec.INN_POL,oper_rec.DESCR,oper_rec.DATA_OP,oper_rec.SUMMA_OP,oper_rec.RULE,oper_rec.PRIZ);
+        INSERT INTO Payment_rent VALUES (oper_rec.KOD, oper_rec.DOG, oper_rec.DATA_DOG, oper_rec.SUMMA_DOG, oper_rec.BIC_PL, oper_rec.KORCH_PL, oper_rec.RASCH_PL, oper_rec.INN_PL, oper_rec.BIC_POL, oper_rec.KORSCH_POL, oper_rec.RASCH_POL, oper_rec.INN_POL, oper_rec.DESCR, oper_rec.DATA_OP, oper_rec.SUMMA_OP, oper_rec.RULE, oper_rec.PRIZ);
         COMMIT;
     END LOOP;
     INSERT INTO loggin_proc(ID,DATE_PROC_START,DATE_FROM,DATE_TO,COUNT_INSERT,DATE_PROC_END,FLAG)
@@ -46,8 +51,14 @@ END;
 SELECT * FROM loggin_proc;
 SELECT * FROM Payment_rent;
 
-SELECT * FROM sh.test_operation WHERE REGEXP_LIKE(UPPER(DESCR), 'АРЕНД');
+
+select * from sh.test_uchast where REGEXP_LIKE(UPPER(NAIMEN), 'БАНК$');
+SELECT * FROM sh.test_operation top
+JOIN sh.test_uchast tuc ON top.INN_POL = tuc.INN
+WHERE REGEXP_LIKE(UPPER(top.DESCR), 'АРЕНД') AND REGEXP_LIKE(UPPER(tuc.NAIMEN), 'БАНК');
 SELECT CURRENT_DATE FROM DUAL;
+
+SELECT * FROM sh.test_operation top JOIN sh.test_uchast tuc ON top.INN_POL = tuc.INN WHERE DATA_OP>=TO_DATE('01.01.1900') AND DATA_OP<=TO_DATE('01.01.2010') AND REGEXP_LIKE(UPPER(DESCR), 'АРЕНД') AND REGEXP_LIKE(UPPER(NAIMEN), 'БАНК');
 
 DROP TABLE Payment_rent;
 DROP PROCEDURE payment_rent_pr;
