@@ -1,0 +1,13 @@
+CREATE OR REPLACE PACKAGE FlightManagementPackage
+IS 
+	FUNCTION IsFlightFull(ID_Flight IN NUMBER)
+	RETURN NUMBER
+	IS
+		v_bool := 0;
+	BEGIN 
+	IF ...что-то там
+		v_bool := 1;
+	RETURN v_bool;
+	FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN TABLE;
+	PROCEDURE BookFlight(ID_pass IN NUMBER,date_departure IN DATE, departure_point IN VARCHAR2, Destination_point IN VARCHAR2);
+END FlightManagementPackage;
