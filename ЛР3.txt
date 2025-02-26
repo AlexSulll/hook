@@ -12,7 +12,7 @@ CREATE OR REPLACE PACKAGE BODY FlightManagementPackage
 IS
 	FUNCTION IsFlightFull(ID_Flight IN VARCHAR2) RETURN NUMBER
 	IS
-		v_bool NUMBER := 0;
+	v_bool NUMBER := 0;
         v_max_seats NUMBER;
         c_seats NUMBER;
         v_aircraft VARCHAR2(3);
@@ -27,7 +27,7 @@ IS
         
         RETURN v_bool;
     END IsFlightFull;
-	FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN SYS_REFCURSOR
+    FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN SYS_REFCURSOR
     IS
         v_cursor SYS_REFCURSOR;
     BEGIN
