@@ -1,33 +1,25 @@
 CREATE OR REPLACE PACKAGE FlightManagementPackage IS 
     FUNCTION IsFlightFull(ID_Flight IN VARCHAR2) RETURN NUMBER;
     FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN SYS_REFCURSOR;
+    FUNCTION GetFlightPriceStats(ID_Flight IN NUMBER) RETURN SYS_REFCURSOR;
     PROCEDURE BookFlight(ID_pass IN VARCHAR2, date_departure IN DATE, departure_point IN VARCHAR2, Destination_point IN VARCHAR2);
 END FlightManagementPackage;
 
 CREATE TABLE availableFlights AS SELECT * FROM avia.flights WHERE rownum<1;
+ALTER TABLE availableFlights ADD (min_price NUMBER(10,2), max_price NUMBER(10,2), avg_price NUMBER(10,2));
 
 CREATE OR REPLACE PACKAGE BODY FlightManagementPackage
 IS
 	FUNCTION IsFlightFull(ID_Flight IN VARCHAR2) RETURN NUMBER
 	IS
-	v_bool NUMBER := 0;
+		v_bool NUMBER := 0;
         v_max_seats NUMBER;
         c_seats NUMBER;
         v_aircraft VARCHAR2(3);
-	BEGIN
+    BEGIN
         SELECT AIRCRAFT_CODE INTO v_aircraft FROM avia.flights WHERE FLIGHT_ID = ID_Flight;
         SELECT COUNT(SEAT_NO)INTO v_max_seats FROM avia.seats WHERE aircraft_code = v_aircraft;
-        
-        BEGIN
-            SELECT COUNT(*)
-            INTO c_seats
-            FROM avia.ticket_flights
-            WHERE flight_id = ID_Flight;
-        
-        IF v_passenger_exists = 0 THEN
-                c_seats := 0;
-        END IF;
-        END;
+        SELECT COUNT(*) INTO c_seats FROM avia.ticket_flights WHERE flight_id = ID_Flight;
         
         IF (v_max_seats = c_seats) THEN
             v_bool := 1;
@@ -46,9 +38,23 @@ IS
             FROM avia.flights fl 
             JOIN avia.airports_data air 
             ON fl.arrival_airport=air.airport_code 
-            WHERE fl.SCHEDULED_DEPARTURE > Date_Flight AND REGEXP_LIKE(air.city, Destination_point) AND fl.status = 'Scheduled' ORDER BY fl.SCHEDULED_DEPARTURE;
-        return v_cursor;
+            WHERE fl.SCHEDULED_DEPARTURE > Date_Flight 
+                    AND REGEXP_LIKE(air.city, Destination_point) 
+                    AND fl.status = 'Scheduled' ORDER BY fl.SCHEDULED_DEPARTURE;
+        RETURN v_cursor;
     END GetAvailableFlights;
+    FUNCTION GetFlightPriceStats(ID_Flight IN NUMBER) RETURN SYS_REFCURSOR
+    IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT MIN(amount) AS min_price, 
+                   MAX(amount) AS max_price, 
+                   AVG(amount) AS avg_price
+            FROM avia.ticket_flights
+            WHERE flight_id = ID_Flight;
+        RETURN v_cursor;
+    END GetFlightPriceStats;
     PROCEDURE BookFlight(ID_pass IN VARCHAR2, date_departure IN DATE, departure_point IN VARCHAR2, destination_point IN VARCHAR2)
     IS
         v_flight_id NUMBER(38,0);
@@ -61,32 +67,30 @@ IS
         v_aircraft_code VARCHAR2(3);
         v_actual_departure TIMESTAMP(6);
         v_actual_arrival TIMESTAMP(6);
+        v_min_price NUMBER;
+        v_max_price NUMBER;
+        v_avg_price NUMBER;
         
         v_passenger_exists NUMBER := 0;
         v_flight_cursor SYS_REFCURSOR;
+        v_price_cursor SYS_REFCURSOR;
         v_flight_full NUMBER;
         v_departure_point VARCHAR2(3);
         
         CURSOR c_departure_airports
         IS 
-            SELECT airport_code 
-            FROM avia.airports_data 
-            WHERE REGEXP_LIKE(city, departure_point);
+            SELECT airport_code FROM avia.airports_data WHERE REGEXP_LIKE(city, departure_point);
     BEGIN
         DELETE FROM avia.availableFlights;
         COMMIT;
         
-        BEGIN
-            SELECT COUNT(*) INTO v_passenger_exists 
-            FROM avia.tickets 
-            WHERE passenger_id = ID_pass;
+        SELECT COUNT(*) INTO v_passenger_exists FROM avia.tickets WHERE passenger_id = ID_pass;
         
-            IF v_passenger_exists = 0 THEN
-                DBMS_OUTPUT.enable;
-                DBMS_OUTPUT.PUT_LINE('Пассажир с ID ' || ID_pass || ' не найден в системе');
-                RETURN;
-            END IF;
-        END;
+        IF v_passenger_exists = 0 THEN
+            DBMS_OUTPUT.enable;
+            DBMS_OUTPUT.PUT_LINE('Пассажир с ID ' || ID_pass || ' не найден в системе');
+            RETURN;
+        END IF;
 
         v_flight_cursor := GetAvailableFlights(date_departure, destination_point);
         
@@ -109,12 +113,21 @@ IS
             
             v_flight_full := IsFlightFull(v_flight_id);
             
+            v_price_cursor := GetFlightPriceStats(v_flight_id);
+            FETCH v_price_cursor INTO v_min_price, v_max_price, v_avg_price;
+            CLOSE v_price_cursor;
+            
+            IF v_min_price IS NULL OR v_max_price IS NULL OR v_avg_price IS NULL THEN
+                CONTINUE;
+            END IF;
+            
             FOR rec IN c_departure_airports LOOP
                 IF v_flight_full = 0 AND v_departure_airport = rec.airport_code THEN
                     INSERT INTO avia.availableFlights VALUES 
                     (v_flight_id, v_flight_no, v_scheduled_departure, v_scheduled_arrival,
                      v_departure_airport, v_arrival_airport, v_status, 
-                     v_aircraft_code, v_actual_departure, v_actual_arrival);
+                     v_aircraft_code, v_actual_departure, v_actual_arrival,
+                     v_min_price, v_max_price, v_avg_price);
                 END IF;
             END LOOP;
         END LOOP;
@@ -122,10 +135,7 @@ IS
         COMMIT;
     END BookFlight;
 END  FlightManagementPackage;
-    
-    
-
-    
+       
 SELECT count(SEAT_NO) FROM avia.seats WHERE aircraft_code = 'SU9';
         
 SELECT count(flight_id) from avia.ticket_flights where flight_id='385';
