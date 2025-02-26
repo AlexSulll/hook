@@ -12,7 +12,7 @@ CREATE OR REPLACE PACKAGE BODY FlightManagementPackage
 IS
 	FUNCTION IsFlightFull(ID_Flight IN VARCHAR2) RETURN NUMBER
 	IS
-	v_bool NUMBER := 0;
+		v_bool NUMBER := 0;
         v_max_seats NUMBER;
         c_seats NUMBER;
         v_aircraft VARCHAR2(3);
@@ -27,7 +27,7 @@ IS
         
         RETURN v_bool;
     END IsFlightFull;
-    FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN SYS_REFCURSOR
+	FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN SYS_REFCURSOR
     IS
         v_cursor SYS_REFCURSOR;
     BEGIN
@@ -39,7 +39,7 @@ IS
             JOIN avia.airports_data air 
             ON fl.arrival_airport=air.airport_code 
             WHERE fl.SCHEDULED_DEPARTURE > Date_Flight 
-                    AND REGEXP_LIKE(air.city, Destination_point) 
+                    AND REGEXP_LIKE(air.city, Destination_point, 'i') 
                     AND fl.status = 'Scheduled' ORDER BY fl.SCHEDULED_DEPARTURE;
         RETURN v_cursor;
     END GetAvailableFlights;
@@ -79,7 +79,7 @@ IS
         
         CURSOR c_departure_airports
         IS 
-            SELECT airport_code FROM avia.airports_data WHERE REGEXP_LIKE(city, departure_point);
+            SELECT airport_code FROM avia.airports_data WHERE REGEXP_LIKE(city, departure_point, 'i');
     BEGIN
         DELETE FROM avia.availableFlights;
         COMMIT;
