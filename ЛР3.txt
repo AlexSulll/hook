@@ -1,13 +1,152 @@
-CREATE OR REPLACE PACKAGE FlightManagementPackage
-IS 
-	FUNCTION IsFlightFull(ID_Flight IN NUMBER)
-	RETURN NUMBER
-	IS
-		v_bool := 0;
-	BEGIN 
-	IF 
-		v_bool := 1;
-	RETURN v_bool;
-	FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN TABLE;
-	PROCEDURE BookFlight(ID_pass IN NUMBER,date_departure IN DATE, departure_point IN VARCHAR2, Destination_point IN VARCHAR2);
+CREATE OR REPLACE PACKAGE FlightManagementPackage IS 
+    FUNCTION IsFlightFull(ID_Flight IN VARCHAR2) RETURN NUMBER;
+    FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN SYS_REFCURSOR;
+    PROCEDURE BookFlight(ID_pass IN VARCHAR2, date_departure IN DATE, departure_point IN VARCHAR2, Destination_point IN VARCHAR2);
 END FlightManagementPackage;
+
+CREATE TABLE availableFlights AS SELECT * FROM avia.flights WHERE rownum<1;
+
+CREATE OR REPLACE PACKAGE BODY FlightManagementPackage
+IS
+	FUNCTION IsFlightFull(ID_Flight IN VARCHAR2) RETURN NUMBER
+	IS
+	v_bool NUMBER := 0;
+        v_max_seats NUMBER;
+        c_seats NUMBER;
+        v_aircraft VARCHAR2(3);
+	BEGIN
+        SELECT AIRCRAFT_CODE INTO v_aircraft FROM avia.flights WHERE FLIGHT_ID = ID_Flight;
+        SELECT COUNT(SEAT_NO)INTO v_max_seats FROM avia.seats WHERE aircraft_code = v_aircraft;
+        
+        BEGIN
+            SELECT COUNT(*)
+            INTO c_seats
+            FROM avia.ticket_flights
+            WHERE flight_id = ID_Flight;
+        
+        IF v_passenger_exists = 0 THEN
+                c_seats := 0;
+        END IF;
+        END;
+        
+        IF (v_max_seats = c_seats) THEN
+            v_bool := 1;
+        END IF;
+        
+        RETURN v_bool;
+    END IsFlightFull;
+	FUNCTION GetAvailableFlights(Date_Flight IN DATE, Destination_point IN VARCHAR2) RETURN SYS_REFCURSOR
+    IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT  fl.FLIGHT_ID, fl.FLIGHT_NO, fl.SCHEDULED_DEPARTURE, 
+                    fl.SCHEDULED_ARRIVAL, fl.DEPARTURE_AIRPORT, fl.ARRIVAL_AIRPORT, 
+                    fl.STATUS, fl.AIRCRAFT_CODE, fl.ACTUAL_DEPARTURE, fl.ACTUAL_ARRIVAL
+            FROM avia.flights fl 
+            JOIN avia.airports_data air 
+            ON fl.arrival_airport=air.airport_code 
+            WHERE fl.SCHEDULED_DEPARTURE > Date_Flight AND REGEXP_LIKE(air.city, Destination_point) AND fl.status = 'Scheduled' ORDER BY fl.SCHEDULED_DEPARTURE;
+        return v_cursor;
+    END GetAvailableFlights;
+    PROCEDURE BookFlight(ID_pass IN VARCHAR2, date_departure IN DATE, departure_point IN VARCHAR2, destination_point IN VARCHAR2)
+    IS
+        v_flight_id NUMBER(38,0);
+        v_flight_no VARCHAR2(6);
+        v_scheduled_departure TIMESTAMP(6);
+        v_scheduled_arrival TIMESTAMP(6);
+        v_departure_airport VARCHAR2(3);
+        v_arrival_airport VARCHAR2(3);
+        v_status VARCHAR2(20);
+        v_aircraft_code VARCHAR2(3);
+        v_actual_departure TIMESTAMP(6);
+        v_actual_arrival TIMESTAMP(6);
+        
+        v_passenger_exists NUMBER := 0;
+        v_flight_cursor SYS_REFCURSOR;
+        v_flight_full NUMBER;
+        v_departure_point VARCHAR2(3);
+        
+        CURSOR c_departure_airports
+        IS 
+            SELECT airport_code 
+            FROM avia.airports_data 
+            WHERE REGEXP_LIKE(city, departure_point);
+    BEGIN
+        DELETE FROM avia.availableFlights;
+        COMMIT;
+        
+        BEGIN
+            SELECT COUNT(*) INTO v_passenger_exists 
+            FROM avia.tickets 
+            WHERE passenger_id = ID_pass;
+        
+            IF v_passenger_exists = 0 THEN
+                DBMS_OUTPUT.enable;
+                DBMS_OUTPUT.PUT_LINE('Пассажир с ID ' || ID_pass || ' не найден в системе');
+                RETURN;
+            END IF;
+        END;
+
+        v_flight_cursor := GetAvailableFlights(date_departure, destination_point);
+        
+        OPEN c_departure_airports;
+        FETCH c_departure_airports INTO v_departure_point;
+        IF c_departure_airports%NOTFOUND THEN
+            DBMS_OUTPUT.enable;
+            DBMS_OUTPUT.PUT_LINE('Аэропорта в городе ' || departure_point || ' нет');
+            CLOSE c_departure_airports;
+            RETURN;
+        END IF;
+        CLOSE c_departure_airports;
+        
+        LOOP
+            FETCH v_flight_cursor 
+            INTO v_flight_id, v_flight_no, v_scheduled_departure, v_scheduled_arrival,
+                 v_departure_airport, v_arrival_airport, v_status, 
+                 v_aircraft_code, v_actual_departure, v_actual_arrival;
+            EXIT WHEN v_flight_cursor%NOTFOUND;
+            
+            v_flight_full := IsFlightFull(v_flight_id);
+            
+            FOR rec IN c_departure_airports LOOP
+                IF v_flight_full = 0 AND v_departure_airport = rec.airport_code THEN
+                    INSERT INTO avia.availableFlights VALUES 
+                    (v_flight_id, v_flight_no, v_scheduled_departure, v_scheduled_arrival,
+                     v_departure_airport, v_arrival_airport, v_status, 
+                     v_aircraft_code, v_actual_departure, v_actual_arrival);
+                END IF;
+            END LOOP;
+        END LOOP;
+        CLOSE v_flight_cursor;
+        COMMIT;
+    END BookFlight;
+END  FlightManagementPackage;
+    
+    
+
+    
+SELECT count(SEAT_NO) FROM avia.seats WHERE aircraft_code = 'SU9';
+        
+SELECT count(flight_id) from avia.ticket_flights where flight_id='385';
+SELECT * FROM avia.flights;
+    
+SELECT FlightManagementPackage.GetAvailableFlights(to_date('17.08.2017'),'St. Petersburg/Санкт-Петербург') FROM DUAL;
+SELECT to_date('17.08.2024') FROM DUAL;
+SELECT FlightManagementPackage.IsFlightFull(flight_id) AS FUL,aircraft_code,flight_id from avia.flights WHERE rownum<1000 ORDER BY FUL DESC;
+    
+SELECT * FROM avia.flights fl 
+        JOIN avia.airports_data air 
+        ON fl.arrival_airport=air.airport_code 
+        WHERE fl.SCHEDULED_DEPARTURE > to_date('17.08.2017') AND REGEXP_LIKE(air.city,'St. Petersburg/Санкт-Петербург') AND fl.status = 'Scheduled' 
+        ORDER BY fl.SCHEDULED_DEPARTURE;
+            
+SELECT * FROM avia.flights fl JOIN avia.airports_data air ON fl.arrival_airport=air.airport_code;
+    
+
+SET SERVEROUTPUT ON;    
+BEGIN
+    FlightManagementPackage.bookflight('7650 555895',TO_DATE('17.08.2017', 'DD.MM.YYYY'),'Санкт-Петербург','Москва');
+END;
+
+SELECT * FROM avia.availableflights;
