@@ -29,6 +29,10 @@ AS
         JOIN flights f ON tf.flight_id = f.flight_id
         WHERE f.flight_no IN ('PG0405', 'PG0045');
 
+BEGIN
+    DBMS_MVIEW.REFRESH('mv_passenger');
+END;
+
 SELECT * FROM mv_passenger_flights;
 
 EXPLAIN PLAN FOR
