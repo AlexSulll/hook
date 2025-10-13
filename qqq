@@ -1,4 +1,4 @@
-wget https://raw.githubusercontent.com/berdav/CVE-2021-4034/main/cve-2021-4034.c
+wget https://github.com/ly4k/PwnKit/raw/main/PwnKit
 
 https://github.com/berdav/CVE-2021-4034
 
