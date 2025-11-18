@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка файлов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .upload-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .file-input {
+            margin: 20px 0;
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .note {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: left;
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h1>📁 Загрузка файлов</h1>
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="file-input">
+                <input type="file" name="fileToUpload" id="fileToUpload" required>
+            </div>
+            <button type="submit" class="upload-btn">📤 Загрузить файл</button>
+        </form>
+
+        <?php
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $target_dir = "uploads/";
+            
+            // Создаем папку uploads, если она не существует
+            if (!file_exists($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
+            
+            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+            $uploadOk = 1;
+
+            // Проверяем, был ли файл действительно загружен через HTTP POST
+            if (isset($_POST["submit"])) {
+                $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+                if ($check !== false) {
+                    echo "<div class='message success'>Файл является изображением - " . $check["mime"] . ".</div>";
+                    $uploadOk = 1;
+                } else {
+                    echo "<div class='message success'>Файл не является изображением.</div>";
+                    $uploadOk = 1;
+                }
+            }
+
+            // Проверяем, не произошла ли ошибка при загрузке
+            if ($_FILES["fileToUpload"]["error"] != 0) {
+                echo "<div class='message'>Извините, произошла ошибка при загрузке файла.</div>";
+                $uploadOk = 0;
+            }
+
+            // Пытаемся загрузить файл
+            if ($uploadOk == 1) {
+                if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+                    echo "<div class='message success'>Файл ". htmlspecialchars(basename($_FILES["fileToUpload"]["name"])). " был успешно загружен.</div>";
+                    echo "<div class='message success'>Путь к файлу: " . htmlspecialchars($target_file) . "</div>";
+                } else {
+                    echo "<div class='message'>Извините, произошла ошибка при загрузке файла.</div>";
+                }
+            }
+        }
+        ?>
+
+        <div class="note">
+            <strong>Примечание для лабораторной работы:</strong><br>
+            • Эта форма уязвима и не проверяет тип загружаемых файлов<br>
+            • Все файлы сохраняются в папке uploads/<br>
+            • Убедитесь, что папка uploads/ существует и доступна для записи<br>
+            • Используйте только в учебных целях!
+        </div>
+    </div>
+</body>
+</html>
