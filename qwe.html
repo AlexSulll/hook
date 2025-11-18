@@ -31,6 +31,7 @@
             border: 2px dashed #ddd;
             border-radius: 5px;
             width: 100%;
+            box-sizing: border-box; /* Добавлено для правильного расчета ширины */
         }
         .upload-btn {
             background-color: #4CAF50;
@@ -49,11 +50,18 @@
             margin-top: 20px;
             padding: 10px;
             border-radius: 5px;
+            text-align: left; /* Улучшено для чтения */
         }
         .success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+        }
+        /* Новый класс для ошибок */
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         .note {
             margin-top: 20px;
@@ -70,14 +78,12 @@
 <body>
     <div class="upload-container">
         <h1>📁 Загрузка файлов</h1>
-        <form action="" method="post" enctype="multipart/form-data">
-            <div class="file-input">
-                <input type="file" name="fileToUpload" id="fileToUpload" required>
-            </div>
-            <button type="submit" class="upload-btn">📤 Загрузить файл</button>
-        </form>
 
         <?php
+        // Помещаем PHP-блок ВЫШЕ формы, чтобы сообщения появлялись над ней
+        
+        $upload_message = ""; // Переменная для хранения сообщений
+
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $target_dir = "uploads/";
             
@@ -86,38 +92,41 @@
                 mkdir($target_dir, 0777, true);
             }
             
-            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-            $uploadOk = 1;
+            // Проверяем, был ли файл вообще отправлен
+            if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] != UPLOAD_ERR_NO_FILE) {
+                
+                $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+                $uploadOk = 1;
 
-            // Проверяем, был ли файл действительно загружен через HTTP POST
-            if (isset($_POST["submit"])) {
-                $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
-                if ($check !== false) {
-                    echo "<div class='message success'>Файл является изображением - " . $check["mime"] . ".</div>";
-                    $uploadOk = 1;
-                } else {
-                    echo "<div class='message success'>Файл не является изображением.</div>";
-                    $uploadOk = 1;
+                // Проверяем, не произошла ли ошибка при загрузке
+                if ($_FILES["fileToUpload"]["error"] != 0) {
+                    $upload_message = "<div class='message error'>Извините, произошла ошибка при загрузке файла. Код ошибки: " . $_FILES["fileToUpload"]["error"] . "</div>";
+                    $uploadOk = 0;
                 }
-            }
 
-            // Проверяем, не произошла ли ошибка при загрузке
-            if ($_FILES["fileToUpload"]["error"] != 0) {
-                echo "<div class='message'>Извините, произошла ошибка при загрузке файла.</div>";
-                $uploadOk = 0;
-            }
-
-            // Пытаемся загрузить файл
-            if ($uploadOk == 1) {
-                if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                    echo "<div class='message success'>Файл ". htmlspecialchars(basename($_FILES["fileToUpload"]["name"])). " был успешно загружен.</div>";
-                    echo "<div class='message success'>Путь к файлу: " . htmlspecialchars($target_file) . "</div>";
-                } else {
-                    echo "<div class='message'>Извините, произошла ошибка при загрузке файла.</div>";
+                // Пытаемся загрузить файл, если все проверки пройдены
+                if ($uploadOk == 1) {
+                    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+                        $upload_message = "<div class='message success'>Файл ". htmlspecialchars(basename($_FILES["fileToUpload"]["name"])). " был успешно загружен.<br>Путь к файлу: " . htmlspecialchars($target_file) . "</div>";
+                    } else {
+                        $upload_message = "<div class='message error'>Извините, произошла ошибка при перемещении загруженного файла.</div>";
+                    }
                 }
+            } else {
+                $upload_message = "<div class='message error'>Ошибка: Файл не был выбран.</div>";
             }
+            
+            // Выводим сообщение
+            echo $upload_message;
         }
         ?>
+
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="file-input">
+                <input type="file" name="fileToUpload" id="fileToUpload" required>
+            </div>
+            <button type="submit" class="upload-btn">📤 Загрузить файл</button>
+        </form>
 
         <div class="note">
             <strong>Примечание для лабораторной работы:</strong><br>
